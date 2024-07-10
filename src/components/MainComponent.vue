@@ -1,12 +1,13 @@
 <script setup>
 import {useGlobalSettings} from "../stores/globalSettings.js";
-import {ref, onMounted, reactive} from "vue";
+import {ref, onMounted, reactive, onUnmounted} from "vue";
 const global=useGlobalSettings()
 const startedindex = ref(0)
 const timerGrouppedByDate=reactive([])
 const timerListing=reactive([])
 const thissetin=ref(null)
 const isStarted=ref(false)
+const currentTimer=ref(null)
 function startTimer(timer){
   isStarted.value=true
   startedindex.value=timer.timerid
@@ -37,6 +38,7 @@ function startTimer(timer){
       }
     }
     timer.duration = `${hour}:${minutes.toString().length===1? '0'+minutes : minutes}:${seconds.toString().length===1? '0'+seconds : seconds}`
+    localStorage.setItem('currentTimer', JSON.stringify(timer));
   }, 1000)
 }
 function stopTimer(timer){
@@ -46,6 +48,7 @@ function stopTimer(timer){
   timerListing.push(timer)
   startedindex.value=0
   clearInterval(thissetin.value)
+  localStorage.clear();
 }
 function pauseTimer(timer){
   clearInterval(thissetin.value)
@@ -63,9 +66,23 @@ function grouppedTimer(){
     }
   }
 }
+function getFromStorage(){
+  currentTimer.value=JSON.parse(localStorage.getItem('currentTimer'));
+  if(currentTimer.value){
+    startedindex.value=currentTimer.value.timerid
+    isStarted.value=true
+    timerGrouppedByDate.forEach(elem=>{
+      if(elem.timerid===currentTimer.value.timerid){
+        elem.duration=currentTimer.value.duration
+        startTimer(elem)
+      }
+    })
+  }
+}
 onMounted(async ()=>{
   global.timeout=import.meta.env.VITE_BASE_TIME_OUT
   await grouppedTimer()
+  await getFromStorage()
 })
 </script>
 <template>
