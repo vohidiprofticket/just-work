@@ -20,10 +20,13 @@ const timerGrouppedByDate=computed(()=>{
 function startTimer(){}
 function stopTimer(){}
 function pauseTimer(){}
+
+onMounted(()=>{
+  global.timeout=import.meta.env.VITE_BASE_TIME_OUT
+})
 </script>
 <template>
-  <div>
-
+  <div class="timer-wrapper">
     <div class="timer-list">
       <div class="timer-head">
         <div class="id-timer">
