@@ -6,7 +6,9 @@ const startedindex = ref(0)
 const timerGrouppedByDate=reactive([])
 const timerListing=reactive([])
 const thissetin=ref(null)
+const isStarted=ref(false)
 function startTimer(timer){
+  isStarted.value=true
   startedindex.value=timer.timerid
   let duration = timer.duration.split(":")
   let hour=Number(duration[0])
@@ -38,7 +40,7 @@ function startTimer(timer){
   }, 1000)
 }
 function stopTimer(timer){
-  console.log('set')
+  isStarted.value=false
   const index=timerGrouppedByDate.indexOf(timer)
   timerGrouppedByDate.splice(index, 1)
   timerListing.push(timer)
@@ -46,7 +48,7 @@ function stopTimer(timer){
   clearInterval(thissetin.value)
 }
 function pauseTimer(timer){
-  console.log(timer, this)
+  clearInterval(thissetin.value)
 }
 function grouppedTimer(){
   let map = global.timerList.reduce((r, i) => {
@@ -90,7 +92,7 @@ onMounted(async ()=>{
         <div class="timer-body">
           <div class="timer-item" v-for="(timer, index) in timerListing" :key="timer.id">
             <div class="id-timer">
-              {{ index }}
+              {{ index + 1 }}
             </div>
             <div class="id-timer">
               {{timer.timerid}}
@@ -130,7 +132,7 @@ onMounted(async ()=>{
         <div class="timer-body">
           <div class="timer-item" v-for="(timer, index) in timerGrouppedByDate" :key="timer.id">
             <div class="id-timer">
-              {{ index }}
+              {{ index + 1 }}
             </div>
             <div class="id-timer">
               {{timer.timerid}}
@@ -159,7 +161,7 @@ onMounted(async ()=>{
                   class="start"
                   type="danger"
                   plain
-                  :disabled="!!startedindex && timer.timerid!==startedindex"
+                  :disabled="!!startedindex && timer.timerid!==startedindex || !isStarted"
               >
                 Стоп
               </el-button>
@@ -168,7 +170,7 @@ onMounted(async ()=>{
                   class="start"
                   type="warning"
                   plain
-                  :disabled="!!startedindex && timer.timerid!==startedindex"
+                  :disabled="!!startedindex && timer.timerid!==startedindex || !isStarted"
               >
                 Пауза
               </el-button>
